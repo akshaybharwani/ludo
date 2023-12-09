@@ -1,4 +1,5 @@
 Class = require "libraries.class"
+Timer = require "libraries.timer"
 
 -- constants.. why doesn't <const> work?
 l = love
@@ -7,47 +8,17 @@ lg = l.graphics
 SCREEN_HEIGHT = 1280
 SCREEN_WIDTH = 720
 
-local boardSize = 700
-local playerIslandSize = boardSize/3
-local playerMovementSize = playerIslandSize/3
-local movementBlock = playerIslandSize/6
-local boardX
-local boardY
+BOARD_SIZE = 700
 
-local playerRadius = 15
+BOARD_X = 0
+BOARD_Y = 0
+
 local dice
-
-local function drawPlayerIslands()
-    -- playerIslands
-    lg.setColor(1, 0, 1)
-    lg.rectangle("fill", boardX, boardY, playerIslandSize, playerIslandSize)
-    lg.rectangle("fill", boardX + playerIslandSize * 2, boardY, playerIslandSize, playerIslandSize)
-    lg.rectangle("fill", boardX, boardY + playerIslandSize * 2, playerIslandSize, playerIslandSize)
-    lg.rectangle("fill", boardX + playerIslandSize * 2, boardY + playerIslandSize * 2, playerIslandSize, playerIslandSize)
-    lg.rectangle("fill", boardX + playerIslandSize, boardY + playerIslandSize, playerIslandSize, playerIslandSize)
-end
-
-local function drawMovementBlocks()
-    -- playerMovementIslands
-    lg.setColor(0, 1, 1)
-    for i = 0, 2 do
-        lg.rectangle("line", boardX, boardY + playerIslandSize + playerMovementSize * i, playerIslandSize, playerMovementSize) 
-        lg.rectangle("line", boardX + playerIslandSize * 2, boardY + playerIslandSize + playerMovementSize * i, playerIslandSize, playerMovementSize) 
-        lg.rectangle("line", boardX + playerIslandSize + playerMovementSize * i, boardY, playerMovementSize, playerIslandSize) 
-        lg.rectangle("line", boardX + playerIslandSize + playerMovementSize * i, boardY + playerIslandSize * 2, playerMovementSize, playerIslandSize) 
-    end
-    -- movementBlocks
-    for i = 0, 5 do
-        lg.rectangle("line", boardX + playerIslandSize, boardY + movementBlock * i, playerIslandSize, movementBlock)
-        lg.rectangle("line", boardX + playerIslandSize, boardY + playerIslandSize * 2 + movementBlock * i, playerIslandSize, movementBlock)
-        lg.rectangle("line", boardX + movementBlock * i, boardY + playerIslandSize, movementBlock, playerIslandSize)
-        lg.rectangle("line", boardX + playerIslandSize * 2 + movementBlock * i, boardY + playerIslandSize, movementBlock, playerIslandSize)
-    end
-end
+local playerManager
 
 local function drawPlayers()
     lg.setColor(1, 0, 0)
-    for i = 0, 2, 2 do
+    --[[ for i = 0, 2, 2 do
         -- top
         lg.circle("fill", boardX + playerIslandSize * i + playerMovementSize, boardY + playerMovementSize, playerRadius)
         lg.circle("fill", boardX + playerIslandSize * i + playerMovementSize * 2, boardY + playerMovementSize, playerRadius)
@@ -59,35 +30,36 @@ local function drawPlayers()
         lg.circle("fill", boardX + playerIslandSize * i + playerMovementSize * 2, boardY + playerIslandSize * 2 + playerMovementSize * 2, playerRadius)
         lg.circle("fill", boardX + playerIslandSize * i + playerMovementSize, boardY + playerIslandSize * 2 + playerMovementSize * 2, playerRadius)
         lg.circle("fill", boardX + playerIslandSize * i + playerMovementSize * 2, boardY + playerIslandSize * 2 + playerMovementSize, playerRadius)
-    end    
+    end ]]
 end
 
 function love.load()
     local modules = {
-        'dice'
+        'dice',
+        'playerManager',
+        'player'
     }
     for k,r in ipairs(modules) do
 		require ('' .. r)
 	end
     --love.window.setFullscreen(true)
     SCREEN_WIDTH, SCREEN_HEIGHT = lg.getDimensions()
-    boardX = SCREEN_WIDTH/2 - boardSize/2
-    boardY = SCREEN_HEIGHT/2 - boardSize/2
-    math.randomseed(os.time())
+    BOARD_X = SCREEN_WIDTH/2 - BOARD_SIZE/2
+    BOARD_Y = SCREEN_HEIGHT/2 - BOARD_SIZE/2
     dice = Dice()
+    playerManager = PlayerManager(1)
 end
 
-function love.update()
-
+function love.update(dt)
+    Timer.update(dt)
 end
 
 function love.draw()
     lg.setColor(1, 1, 1)
-    lg.rectangle("fill", boardX, boardY, boardSize, boardSize)
-    drawPlayerIslands()
-    drawMovementBlocks()
+    lg.rectangle("fill", BOARD_X, BOARD_Y, BOARD_SIZE, BOARD_SIZE)
     drawPlayers()
     dice:draw()
+    playerManager:draw()
 end
 
 function l.mousepressed(x, y, button, istouch)

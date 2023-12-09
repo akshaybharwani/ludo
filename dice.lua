@@ -19,6 +19,6 @@ Dice = Class {
 }
 
 function Dice:rollDice()
-    self.roll = math.random(1, 6)
+    self.roll = l.math.random(1, 6)
     return self.roll
 end
